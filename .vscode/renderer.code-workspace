@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"name": "Renderer",
+			"path": ".."
+		},
+		{
+			"name": "String Engine",
+			"path": "../../string"
+		}
+	],
+	"settings": {
+		"clangd.path": "/usr/bin/clangd-15",
+		"mesonbuild.configureOnOpen": true,
+		"mesonbuild.buildFolder": "build"
+	},
+	"extensions": {
+		"recommendations": ["mesonbuild.mesonbuild", "llvm-vs-code-extensions.vscode-clangd"]
+	}
+}
