@@ -4,6 +4,7 @@ project(
     version : '0.0.1',
     default_options : [
         'cpp_std=c++20',
+        'buildtype=debug',
         'warning_level=3'
     ]
 )
@@ -12,6 +13,10 @@ project_description = 'A Vulkan renderer.'
 
 build_args = [
 ]
+
+if get_option('buildtype') == 'release'
+    add_project_arguments('-DSTRING_RELEASE', language : 'cpp')
+endif
 
 # --------------------------------------------------
 
@@ -62,17 +67,9 @@ pkg_mod.generate(
 # Shaders
 # ======
 
-#glsllang = find_program('glslangvalidator')
-#shaders = 'shaders'
-#shader_targets = []
-#foreach s : shaders
-#  shaders += custom_target(
-#    'shader @0@'.format(s),
-#    command : [glsllang, '-V', '@INPUT@', '-o',  '@OUTPUT@'],
-#    input : s, 
-#    output : '@BASENAME@.spv'.
-#  )
-#endforeach
+if not meson.is_subproject()
+    subdir('shaders')
+endif
 
 # --------------------------------------------------
 
