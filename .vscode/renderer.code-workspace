@@ -7,6 +7,9 @@
 		{
 			"name": "String Engine",
 			"path": "../../string"
+		},
+		{
+			"path": "../../2019-ecs"
 		}
 	],
 	"settings": {

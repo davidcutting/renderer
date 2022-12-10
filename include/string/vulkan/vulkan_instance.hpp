@@ -22,47 +22,40 @@
 
 #pragma once
 
+#include <GLFW/glfw3.h>
 #include <bits/stdc++.h>
+#include <vulkan/vulkan.h>
 
+#include <string/application.hpp>
 #include <string/core/assert.hpp>
 #include <string/core/logger.hpp>
 #include <string/core/nocopy.hpp>
-#include <string/application.hpp>
 
-#include <GLFW/glfw3.h>
-#include <vulkan/vulkan.h>
-
-namespace String
-{
-namespace Vulkan
-{
+namespace String {
+namespace Vulkan {
 
 /**
     @class Instance
-    @brief This class is responsible for initializing the Vulkan library, managing Vulkan extensions and validation layers,
-    setting up Vulkan debug messaging if desired.
+    @brief This class is responsible for initializing the Vulkan library, managing Vulkan extensions and validation
+   layers, setting up Vulkan debug messaging if desired.
 */
-class Instance : NonCopyable<Instance>
-{
-private:
-    /**
-        @brief The application's properties
-    */
+class VulkanInstance : NonCopyable<VulkanInstance> {
+  private:
+    /** @brief The application's properties */
     Application::Properties application_properties_;
 
-    /**
-        @brief The Vulkan instance
-    */
+    /** @brief The Vulkan instance */
     VkInstance instance_handle_;
-public:
+
+  public:
     /**
         @brief Constructor that initializes the Vulkan library
         @param properties The application's properties
         @throws runtime_error if the Vulkan instance fails to be created
     */
-    Instance(const Application::Properties properties);
+    VulkanInstance(const Application::Properties properties);
 
-    ~Instance();
+    ~VulkanInstance();
 
     VkInstance get_handle() const noexcept;
 };
@@ -71,21 +64,17 @@ public:
     Impl
 */
 
-inline Instance::Instance(const Application::Properties properties)
-    : application_properties_(properties)
-{
-    VkApplicationInfo application_info =
-    {
+inline VulkanInstance::VulkanInstance(const Application::Properties properties) : application_properties_(properties) {
+    VkApplicationInfo application_info{
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-        .pNext = nullptr, // TODO: Point to extension information
+        .pNext = nullptr,  // TODO: Point to extension information
         .pApplicationName = application_properties_.name.c_str(),
-        .applicationVersion = VK_MAKE_VERSION(
-            std::get<0>(application_properties_.version),
-            std::get<1>(application_properties_.version),
-            std::get<2>(application_properties_.version)),
+        .applicationVersion =
+            VK_MAKE_VERSION(std::get<0>(application_properties_.version), std::get<1>(application_properties_.version),
+                            std::get<2>(application_properties_.version)),
         .pEngineName = "String Engine",
         .engineVersion = VK_MAKE_VERSION(0, 0, 1),
-        .apiVersion = VK_API_VERSION_1_3
+        .apiVersion = VK_API_VERSION_1_3,
     };
 
     // Setup Vulkan extensions
@@ -107,22 +96,20 @@ inline Instance::Instance(const Application::Properties properties)
         const char** glfw_extensions;
         glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
-        for (uint32_t i = 0; i < glfw_extension_count; ++i)
-        {
+        for (uint32_t i = 0; i < glfw_extension_count; ++i) {
             required_extensions.emplace_back(glfw_extensions[i]);
         }
     }
 
-    VkInstanceCreateInfo create_info =
-    {
+    VkInstanceCreateInfo create_info{
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
         .pApplicationInfo = &application_info,
         .enabledLayerCount = 0,
         .ppEnabledLayerNames = nullptr,
-        .enabledExtensionCount = (uint32_t) required_extensions.size(),
-        .ppEnabledExtensionNames = required_extensions.data()
+        .enabledExtensionCount = (uint32_t)required_extensions.size(),
+        .ppEnabledExtensionNames = required_extensions.data(),
     };
 
     // TODO: Use custom allocator
@@ -130,20 +117,15 @@ inline Instance::Instance(const Application::Properties properties)
     STRING_ASSERT(result == VK_SUCCESS);
 }
 
-inline Instance::~Instance()
-{
+inline VulkanInstance::~VulkanInstance() {
     // TODO: Use custom allocator
-    if (instance_handle_ != VK_NULL_HANDLE)
-    {
+    if (instance_handle_ != VK_NULL_HANDLE) {
         vkDestroyInstance(instance_handle_, nullptr);
     }
     // TODO: Log
 }
 
-inline VkInstance Instance::get_handle() const noexcept
-{
-    return instance_handle_;
-}
+inline VkInstance VulkanInstance::get_handle() const noexcept { return instance_handle_; }
 
 }  // namespace Vulkan
 }  // namespace String

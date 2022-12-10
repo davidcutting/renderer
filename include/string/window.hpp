@@ -25,64 +25,50 @@
 #include <cinttypes>
 #include <string>
 
-namespace String
-{
+namespace String {
 
-namespace View
-{
+namespace View {
 
-struct Extent
-{
+struct Extent {
     uint32_t width;
     uint32_t height;
 };
 
-enum class Mode
-{
-    WINDOWED,
-    FULLSCREEN,
-    FULLSCREEN_BORDERLESS,
-    HEADLESS
-};
+enum class Mode { WINDOWED, FULLSCREEN, FULLSCREEN_BORDERLESS, HEADLESS };
 
-enum class VSync
-{
-    OFF,
-    ON
-};
-} // namespace View
+enum class VSync { OFF, ON };
+}  // namespace View
 
-class Window
-{
-public:
-    struct Properties
-    {
+class Window {
+  public:
+    struct Properties {
         std::string title = "unnamed window";
         View::Mode mode = View::Mode::WINDOWED;
         bool resizable = true;
         View::VSync vsync = View::VSync::ON;
         View::Extent extent = {1280, 720};
     };
-protected:
+
+  protected:
     Window::Properties _window_properties;
-public:
+
+  public:
     Window(const Window::Properties& properties) noexcept;
-	virtual ~Window() = default;
+    virtual ~Window() = default;
+
+    virtual void update() const noexcept = 0;
+
+    virtual bool is_open() const noexcept = 0;
 
     virtual void* get_native_window() const noexcept = 0;
 
     Window::Properties get_properties() const noexcept;
 };
 
-inline Window::Window(const Window::Properties& properties) noexcept
-    : _window_properties(properties)
-{
+inline Window::Window(const Window::Properties& properties) noexcept : _window_properties(properties) {
     // Constructor
 }
 
-inline Window::Properties Window::get_properties() const noexcept
-{
-    return _window_properties;
-}
+inline Window::Properties Window::get_properties() const noexcept { return _window_properties; }
 
-}
+}  // namespace String
