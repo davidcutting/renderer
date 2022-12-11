@@ -27,11 +27,20 @@
 #include <vulkan/vulkan.h>
 
 #include <string/application.hpp>
-#include <string/core/assert.hpp>
-#include <string/core/logger.hpp>
-#include <string/core/nocopy.hpp>
+#include <string/core/debug.hpp>
 
 namespace String {
+
+using Version = std::tuple<uint8_t, uint8_t, uint8_t>;
+
+class Application {
+public:
+    struct Properties {
+        std::string name;
+        Version version;
+    };
+};  // class Application
+
 namespace Vulkan {
 
 /**
@@ -39,15 +48,15 @@ namespace Vulkan {
     @brief This class is responsible for initializing the Vulkan library, managing Vulkan extensions and validation
    layers, setting up Vulkan debug messaging if desired.
 */
-class VulkanInstance : NonCopyable<VulkanInstance> {
-  private:
+class VulkanInstance {
+private:
     /** @brief The application's properties */
     Application::Properties application_properties_;
 
     /** @brief The Vulkan instance */
     VkInstance instance_handle_;
 
-  public:
+public:
     /**
         @brief Constructor that initializes the Vulkan library
         @param properties The application's properties

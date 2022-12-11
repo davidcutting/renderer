@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,22 +22,59 @@
 
 #pragma once
 
-#include <string>
-#include <tuple>
+#include <bits/stdc++.h>
 
-namespace String
-{
+#include <memory>
+#include <string/core/coordinator.hpp>
+#include <string/system/render_system.hpp>
+#include <string/vulkan/vulkan_window.hpp>
+#include <string/window.hpp>
 
-using Version = std::tuple<uint8_t, uint8_t, uint8_t>;
+namespace String {
 
-class Application
-{
+class HelloTriangleApplication {
 public:
-    struct Properties
-    {
-        std::string name;
-        Version version;
-    };
-}; // class Application
+    HelloTriangleApplication() { init(); };
+    ~HelloTriangleApplication() { shutdown(); }
+
+    void init() {
+        Window::Properties properties{
+            .title = "Hello Triangle",
+            .mode = String::View::Mode::WINDOWED,
+            .resizable = true,
+            .vsync = String::View::VSync::ON,
+            .extent = {800, 600},
+        };
+        vulkan_window = std::make_shared<Vulkan::VulkanWindow>(properties);
+
+        coordinator.Init();
+
+        render_system = coordinator.RegisterSystem<RenderSystem>();
+        render_system->set_window(vulkan_window);
+        render_system->init();
+    }
+
+    void run() {
+        float dt = 0.0f;
+
+        while (vulkan_window->is_open()) {
+            auto startTime = std::chrono::high_resolution_clock::now();
+
+            vulkan_window->update();
+            render_system->update(dt);
+
+            auto stopTime = std::chrono::high_resolution_clock::now();
+            dt = std::chrono::duration<float, std::chrono::seconds::period>(stopTime - startTime).count();
+        }
+    }
+
+    void shutdown() { render_system->shutdown(); }
+
+private:
+    std::shared_ptr<Vulkan::VulkanWindow> vulkan_window;
+
+    Coordinator coordinator;
+    std::shared_ptr<RenderSystem> render_system;
+};
 
 }  // namespace String
