@@ -5,6 +5,8 @@
 #include <string/core/system.hpp>
 #include <string/core/event.hpp>
 
+#include <bits/stdc++.h>
+
 namespace String {
 
 class Coordinator {

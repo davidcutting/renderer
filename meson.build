@@ -1,5 +1,5 @@
 project(
-    'renderer',
+    'string',
     'cpp',
     version : '0.0.1',
     default_options : [
@@ -43,7 +43,7 @@ build_args += [
     '-DPROJECT_VERSION=' + meson.project_version()
 ]
 
-renderer = executable(
+string = executable(
     meson.project_name(),
     dependencies: deps,
     include_directories : include_dir,
@@ -80,7 +80,7 @@ endif
 project_deps = declare_dependency(
     include_directories : include_dir,
     sources : src,
-    link_with : renderer
+    link_with : string
 )
 
 set_variable(meson.project_name() + '_dep', project_deps)

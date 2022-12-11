@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <bits/stdc++.h>
-
-#include <memory>
 #include <string/core/coordinator.hpp>
 #include <string/system/render_system.hpp>
 #include <string/vulkan/vulkan_window.hpp>

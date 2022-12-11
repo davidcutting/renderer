@@ -1,12 +1,12 @@
 {
 	"folders": [
 		{
-			"name": "Renderer",
+			"name": "String Engine",
 			"path": ".."
 		},
 		{
-			"name": "String Engine",
-			"path": "../../string"
+			"name": "String Old",
+			"path": "../../string_old"
 		},
 		{
 			"path": "../../2019-ecs"

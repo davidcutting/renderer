@@ -2,10 +2,11 @@
 
 #include <vulkan/vulkan.h>
 
-#include <memory>
 #include <string/core/system.hpp>
 #include <string/vulkan/vulkan_window.hpp>
 #include <string/window.hpp>
+
+#include <bits/stdc++.h>
 
 // Vulkan Debug
 
@@ -16,8 +17,8 @@ const bool enableValidationLayers = true;
 #endif
 
 inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-                                      const VkAllocationCallbacks* pAllocator,
-                                      VkDebugUtilsMessengerEXT* pDebugMessenger) {
+                                             const VkAllocationCallbacks* pAllocator,
+                                             VkDebugUtilsMessengerEXT* pDebugMessenger) {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -27,7 +28,7 @@ inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugU
 }
 
 inline void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-                                   const VkAllocationCallbacks* pAllocator) {
+                                          const VkAllocationCallbacks* pAllocator) {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
         func(instance, debugMessenger, pAllocator);
@@ -103,10 +104,7 @@ public:
 
     void update(float dt) { drawFrame(); }
 
-    void set_window(std::shared_ptr<Vulkan::VulkanWindow> window)
-    {
-        vulkan_window = std::move(window);
-    }
+    void set_window(std::shared_ptr<Vulkan::VulkanWindow> window) { vulkan_window = std::move(window); }
 
 private:
     std::shared_ptr<Vulkan::VulkanWindow> vulkan_window;

@@ -1,8 +1,10 @@
 #pragma once
 
-#include <bits/stdc++.h>
-
+#include <array>
+#include <cstdint>
+#include <memory>
 #include <string/core/entity.hpp>
+#include <unordered_map>
 
 namespace String {
 
