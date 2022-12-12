@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string/core/coordinator.hpp>
 #include <string/system/render_system.hpp>
 #include <string/vulkan/vulkan_window.hpp>
@@ -31,10 +32,7 @@ namespace String {
 
 class HelloTriangleApplication {
 public:
-    HelloTriangleApplication() { init(); };
-    ~HelloTriangleApplication() { shutdown(); }
-
-    void init() {
+    HelloTriangleApplication() {
         Window::Properties properties{
             .title = "Hello Triangle",
             .mode = String::View::Mode::WINDOWED,
@@ -43,13 +41,16 @@ public:
             .extent = {800, 600},
         };
         vulkan_window = std::make_shared<Vulkan::VulkanWindow>(properties);
+        coordinator = std::make_shared<Coordinator>();
 
-        coordinator.Init();
+        coordinator->init();
 
-        render_system = coordinator.RegisterSystem<RenderSystem>();
-        render_system->set_window(vulkan_window);
-        render_system->init();
-    }
+        rendering_system = coordinator->register_system<RenderSystem>();
+        rendering_system->set_window(vulkan_window);
+        rendering_system->init();
+    };
+
+    ~HelloTriangleApplication() { rendering_system->shutdown(); }
 
     void run() {
         float dt = 0.0f;
@@ -58,20 +59,18 @@ public:
             auto startTime = std::chrono::high_resolution_clock::now();
 
             vulkan_window->update();
-            render_system->update(dt);
+            rendering_system->update(dt);
 
             auto stopTime = std::chrono::high_resolution_clock::now();
             dt = std::chrono::duration<float, std::chrono::seconds::period>(stopTime - startTime).count();
         }
     }
 
-    void shutdown() { render_system->shutdown(); }
-
 private:
     std::shared_ptr<Vulkan::VulkanWindow> vulkan_window;
 
-    Coordinator coordinator;
-    std::shared_ptr<RenderSystem> render_system;
+    std::shared_ptr<Coordinator> coordinator;
+    std::shared_ptr<RenderSystem> rendering_system;
 };
 
 }  // namespace String

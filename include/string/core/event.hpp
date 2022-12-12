@@ -10,49 +10,49 @@ class Event {
 public:
     Event() = delete;
 
-    explicit Event(EventId type) : mType(type) {}
+    explicit Event(EventId type) : type_(type) {}
 
     template <typename T>
-    void SetParam(EventId id, T value) {
-        mData[id] = value;
+    void set_param(EventId id, T value) {
+        data_[id] = value;
     }
 
     template <typename T>
-    T GetParam(EventId id) {
-        return std::any_cast<T>(mData[id]);
+    T get_param(EventId id) {
+        return std::any_cast<T>(data_[id]);
     }
 
-    EventId GetType() const { return mType; }
+    EventId get_type() const { return type_; }
 
 private:
-    EventId mType{};
-    std::unordered_map<EventId, std::any> mData{};
+    EventId type_{};
+    std::unordered_map<EventId, std::any> data_{};
 };
 
 class EventManager {
 public:
-    void AddListener(EventId eventId, std::function<void(Event&)> const& listener) {
-        listeners[eventId].push_back(listener);
+    void add_listener(EventId event_id, std::function<void(Event&)> const& listener) {
+        listeners_[event_id].push_back(listener);
     }
 
-    void SendEvent(Event& event) {
-        uint32_t type = event.GetType();
+    void send_event(Event& event) {
+        uint32_t type = event.get_type();
 
-        for (auto const& listener : listeners[type]) {
+        for (auto const& listener : listeners_[type]) {
             listener(event);
         }
     }
 
-    void SendEvent(EventId eventId) {
-        Event event(eventId);
+    void send_event(EventId event_id) {
+        Event event(event_id);
 
-        for (auto const& listener : listeners[eventId]) {
+        for (auto const& listener : listeners_[event_id]) {
             listener(event);
         }
     }
 
 private:
-    std::unordered_map<EventId, std::list<std::function<void(Event&)>>> listeners;
+    std::unordered_map<EventId, std::list<std::function<void(Event&)>>> listeners_;
 };
 
 }  // namespace String

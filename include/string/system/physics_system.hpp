@@ -11,16 +11,16 @@ public:
     void Init() {}
 
     void Update(float dt) {
-        for (auto const& entity : mEntities) {
-            auto& rigidBody = coordinator->GetComponent<RigidBody>(entity);
-            auto& transform = coordinator->GetComponent<Transform>(entity);
+        for (const auto& entity : entities) {
+            auto& rigid_body = coordinator->get_component<RigidBody>(entity);
+            auto& transform = coordinator->get_component<Transform>(entity);
 
             // Forces
-            auto const& gravity = coordinator->GetComponent<Gravity>(entity);
+            const auto& gravity = coordinator->get_component<Gravity>(entity);
 
-            transform.position += rigidBody.velocity * dt;
+            transform.position += rigid_body.velocity * dt;
 
-            rigidBody.velocity += gravity.force * dt;
+            rigid_body.velocity += gravity.force * dt;
         }
     }
 
