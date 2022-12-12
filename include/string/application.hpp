@@ -25,28 +25,22 @@
 #include <memory>
 #include <string/core/coordinator.hpp>
 #include <string/system/render_system.hpp>
-#include <string/vulkan/vulkan_window.hpp>
-#include <string/window.hpp>
+#include <string/system/window_system.hpp>
 
 namespace String {
 
 class HelloTriangleApplication {
 public:
     HelloTriangleApplication() {
-        Window::Properties properties{
-            .title = "Hello Triangle",
-            .mode = String::View::Mode::WINDOWED,
-            .resizable = true,
-            .vsync = String::View::VSync::ON,
-            .extent = {800, 600},
-        };
-        vulkan_window = std::make_shared<Vulkan::VulkanWindow>(properties);
         coordinator = std::make_shared<Coordinator>();
 
         coordinator->init();
 
+        window_system = coordinator->register_system<WindowSystem>();
+        window_system->init();
+
         rendering_system = coordinator->register_system<RenderSystem>();
-        rendering_system->set_window(vulkan_window);
+        rendering_system->set_window(window_system->vulkan_window);
         rendering_system->init();
     };
 
@@ -55,10 +49,10 @@ public:
     void run() {
         float dt = 0.0f;
 
-        while (vulkan_window->is_open()) {
+        while (window_system->is_active()) {
             auto startTime = std::chrono::high_resolution_clock::now();
 
-            vulkan_window->update();
+            window_system->update();
             rendering_system->update(dt);
 
             auto stopTime = std::chrono::high_resolution_clock::now();
@@ -67,10 +61,9 @@ public:
     }
 
 private:
-    std::shared_ptr<Vulkan::VulkanWindow> vulkan_window;
-
     std::shared_ptr<Coordinator> coordinator;
     std::shared_ptr<RenderSystem> rendering_system;
+    std::shared_ptr<WindowSystem> window_system;
 };
 
 }  // namespace String

@@ -2,6 +2,7 @@ project(
     'string',
     'cpp',
     version : '0.0.1',
+    license: 'MIT',
     default_options : [
         'cpp_std=c++20',
         'buildtype=debug',
@@ -11,12 +12,27 @@ project(
 
 project_description = 'A Vulkan renderer.'
 
-build_args = [
-]
+compiler = meson.get_compiler('cpp')
+if compiler.get_id() == 'gcc'
+    message('Compiler: GCC')
+elif compiler.get_id() == 'clang'
+    message('Compiler: LLVM/Clang')
+    libs_compiler = ['-stdlib=libc++']
+    libs_linker   = ['-stdlib=libc++']
+endif
 
 if get_option('buildtype') == 'release'
-    add_project_arguments('-DSTRING_RELEASE', language : 'cpp')
+    message('Building in Release mode')
+    release = ['-DSTRING_RELEASE']
+elif get_option('buildtype') == 'debug'
+    message('Building in Debug mode')
+    release = ['-DSTRING_DEBUG']
 endif
+
+add_project_arguments(release, libs_compiler, libs_linker, language : 'cpp')
+
+build_args = [
+]
 
 # --------------------------------------------------
 
@@ -49,7 +65,7 @@ string = executable(
     include_directories : include_dir,
     sources : src,
     install : true,
-    c_args : build_args
+    cpp_args : build_args
 )
 
 pkg_mod = import('pkgconfig')
