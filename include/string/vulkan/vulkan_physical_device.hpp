@@ -26,21 +26,15 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <renderer/core/assert.hpp>
-#include <renderer/core/logger.hpp>
-#include <renderer/core/nocopy.hpp>
-#include <renderer/vulkan/instance.hpp>
-#include <vector>
+#include <string/core/debug.hpp>
+#include <string/vulkan/vulkan_instance.hpp>
 
 namespace String {
 namespace Vulkan {
 
-class PhysicalDevice : NonCopyable<PhysicalDevice> {
+class PhysicalDevice {
 private:
-    Instance& instance_handle_;
+    VulkanInstance& instance_handle_;
 
     VkPhysicalDevice physical_device_handle_{VK_NULL_HANDLE};
 
@@ -60,19 +54,19 @@ private:
     VkPhysicalDeviceFeatures physical_device_requested_features_{};
 
 public:
-    PhysicalDevice(Instance& instance) noexcept;
+    PhysicalDevice(VulkanInstance& instance) noexcept;
 
 private:
-    std::vector<VkPhysicalDevice> get_available_physical_devices(const Instance& instance) noexcept;
+    std::vector<VkPhysicalDevice> get_available_physical_devices(const VulkanInstance& instance) noexcept;
 
 public:
     bool is_device_suitable(const VkPhysicalDevice& device) const noexcept;
 
-    VkPhysicalDevice get_best_physical_device(const Instance& instance) noexcept;
+    VkPhysicalDevice get_best_physical_device(const VulkanInstance& instance) noexcept;
 
 };  // class PhysicalDevice
 
-inline PhysicalDevice::PhysicalDevice(Instance& instance) noexcept : instance_handle_(instance) {
+inline PhysicalDevice::PhysicalDevice(VulkanInstance& instance) noexcept : instance_handle_(instance) {
     std::vector<VkPhysicalDevice> devices = get_available_physical_devices(instance);
 
     vkGetPhysicalDeviceFeatures(physical_device_handle_, &physical_device_features_);
@@ -86,7 +80,8 @@ inline PhysicalDevice::PhysicalDevice(Instance& instance) noexcept : instance_ha
                                              queue_family_properties_.data());
 }
 
-inline std::vector<VkPhysicalDevice> PhysicalDevice::get_available_physical_devices(const Instance& instance) noexcept {
+inline std::vector<VkPhysicalDevice> PhysicalDevice::get_available_physical_devices(
+    const VulkanInstance& instance) noexcept {
     uint32_t device_count = 0;
     vkEnumeratePhysicalDevices(instance.get_handle(), &device_count, nullptr);
 
@@ -105,8 +100,9 @@ inline bool PhysicalDevice::is_device_suitable(const VkPhysicalDevice& device) c
     vkGetPhysicalDeviceProperties(device, &device_properties);
 }
 
-inline VkPhysicalDevice PhysicalDevice::get_best_physical_device() noexcept {
+inline VkPhysicalDevice PhysicalDevice::get_best_physical_device(const VulkanInstance& instance) noexcept {
     VkPhysicalDevice best_physical_device{VK_NULL_HANDLE};
+    std::vector<VkPhysicalDevice> devices = get_available_physical_devices(instance);
 
     for (const auto& device : devices) {
         if (is_device_suitable(device)) {

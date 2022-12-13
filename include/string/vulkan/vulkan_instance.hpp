@@ -26,7 +26,6 @@
 #include <bits/stdc++.h>
 #include <vulkan/vulkan.h>
 
-#include <string/application.hpp>
 #include <string/core/debug.hpp>
 
 namespace String {
