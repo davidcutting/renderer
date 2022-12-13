@@ -1,11 +1,11 @@
 #pragma once
 
+#include <bits/stdc++.h>
+
 #include <string/core/component.hpp>
 #include <string/core/entity.hpp>
-#include <string/core/system.hpp>
 #include <string/core/event.hpp>
-
-#include <bits/stdc++.h>
+#include <string/core/system.hpp>
 
 namespace String {
 

@@ -6,7 +6,6 @@
 		}
 	],
 	"settings": {
-		"clangd.path": "/usr/bin/clangd-14",
 		"mesonbuild.configureOnOpen": true,
 		"mesonbuild.buildFolder": "build"
 	},

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string/core/entity.hpp>
-
 #include <bits/stdc++.h>
+
+#include <string/core/entity.hpp>
 
 namespace String {
 

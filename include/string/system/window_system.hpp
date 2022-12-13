@@ -22,14 +22,9 @@ public:
         vulkan_window = std::make_shared<Vulkan::VulkanWindow>(properties);
     }
 
-    void update() {
-        vulkan_window->update();
-    }
+    void update() { vulkan_window->update(); }
 
-    bool is_active()
-    {
-        return vulkan_window->is_open();
-    }
+    bool is_active() { return vulkan_window->is_open(); }
 
     std::shared_ptr<Vulkan::VulkanWindow> vulkan_window;
 

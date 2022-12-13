@@ -73,7 +73,8 @@ public:
     void register_component() {
         const char* typeName = typeid(T).name();
 
-        assert(component_types_.find(typeName) == component_types_.end() && "Registering component type more than once.");
+        assert(component_types_.find(typeName) == component_types_.end() &&
+               "Registering component type more than once.");
 
         component_types_.insert({typeName, next_component_type_});
         component_arrays_.insert({typeName, std::make_shared<ComponentArray<T>>()});

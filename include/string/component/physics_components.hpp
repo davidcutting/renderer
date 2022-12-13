@@ -13,16 +13,14 @@ struct RigidBody {
     Vec3 acceleration;
 };
 
-struct Transform
-{
-	Vec3 position;
-	Vec3 rotation;
-	Vec3 scale;
+struct Transform {
+    Vec3 position;
+    Vec3 rotation;
+    Vec3 scale;
 };
 
-struct Thrust
-{
-	Vec3 force;
+struct Thrust {
+    Vec3 force;
 };
 
 }  // namespace String

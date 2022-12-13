@@ -23,6 +23,8 @@
 #pragma once
 
 #include <bits/stdc++.h>
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -31,102 +33,91 @@
 #include <renderer/core/logger.hpp>
 #include <renderer/core/nocopy.hpp>
 #include <renderer/vulkan/instance.hpp>
-
 #include <vector>
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
 
-namespace String
-{
-namespace Vulkan
-{
+namespace String {
+namespace Vulkan {
 
-class PhysicalDevice : NonCopyable<PhysicalDevice>
-{
+class PhysicalDevice : NonCopyable<PhysicalDevice> {
 private:
-	Instance& instance_handle_;
+    Instance& instance_handle_;
 
     VkPhysicalDevice physical_device_handle_{VK_NULL_HANDLE};
 
     // The features that this GPU supports
-	VkPhysicalDeviceFeatures physical_device_features_{};
+    VkPhysicalDeviceFeatures physical_device_features_{};
 
-	// The GPU properties
-	VkPhysicalDeviceProperties physical_device_properties_;
+    // The GPU properties
+    VkPhysicalDeviceProperties physical_device_properties_;
 
-	// The GPU memory properties
-	VkPhysicalDeviceMemoryProperties physical_device_memory_properties_;
+    // The GPU memory properties
+    VkPhysicalDeviceMemoryProperties physical_device_memory_properties_;
 
-	// The GPU queue family properties
-	std::vector<VkQueueFamilyProperties> queue_family_properties_;
+    // The GPU queue family properties
+    std::vector<VkQueueFamilyProperties> queue_family_properties_;
 
-	// The features that will be requested to be enabled in the logical device
-	VkPhysicalDeviceFeatures physical_device_requested_features_{};
+    // The features that will be requested to be enabled in the logical device
+    VkPhysicalDeviceFeatures physical_device_requested_features_{};
+
 public:
     PhysicalDevice(Instance& instance) noexcept;
 
 private:
-	std::vector<VkPhysicalDevice> get_available_physical_devices(const Instance& instance) noexcept;
+    std::vector<VkPhysicalDevice> get_available_physical_devices(const Instance& instance) noexcept;
 
 public:
-	bool is_device_suitable(const VkPhysicalDevice& device) const noexcept;
+    bool is_device_suitable(const VkPhysicalDevice& device) const noexcept;
 
-	VkPhysicalDevice get_best_physical_device(const Instance& instance) noexcept;
+    VkPhysicalDevice get_best_physical_device(const Instance& instance) noexcept;
 
-}; // class PhysicalDevice
+};  // class PhysicalDevice
 
-inline PhysicalDevice::PhysicalDevice(Instance& instance) noexcept
-	: instance_handle_(instance)
-{
-	std::vector<VkPhysicalDevice> devices = get_available_physical_devices(instance);
+inline PhysicalDevice::PhysicalDevice(Instance& instance) noexcept : instance_handle_(instance) {
+    std::vector<VkPhysicalDevice> devices = get_available_physical_devices(instance);
 
-	vkGetPhysicalDeviceFeatures(physical_device_handle_, &physical_device_features_);
-	vkGetPhysicalDeviceProperties(physical_device_handle_, &physical_device_properties_);
-	vkGetPhysicalDeviceMemoryProperties(physical_device_handle_, &physical_device_memory_properties_);
+    vkGetPhysicalDeviceFeatures(physical_device_handle_, &physical_device_features_);
+    vkGetPhysicalDeviceProperties(physical_device_handle_, &physical_device_properties_);
+    vkGetPhysicalDeviceMemoryProperties(physical_device_handle_, &physical_device_memory_properties_);
 
-	uint32_t queue_family_properties_count = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(physical_device_handle_, &queue_family_properties_count, nullptr);
-	queue_family_properties_ = std::vector<VkQueueFamilyProperties>(queue_family_properties_count);
-	vkGetPhysicalDeviceQueueFamilyProperties(physical_device_handle_, &queue_family_properties_count, queue_family_properties_.data());
+    uint32_t queue_family_properties_count = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device_handle_, &queue_family_properties_count, nullptr);
+    queue_family_properties_ = std::vector<VkQueueFamilyProperties>(queue_family_properties_count);
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device_handle_, &queue_family_properties_count,
+                                             queue_family_properties_.data());
 }
 
-inline std::vector<VkPhysicalDevice> PhysicalDevice::get_available_physical_devices(const Instance& instance) noexcept
-{
-	uint32_t device_count = 0;
-	vkEnumeratePhysicalDevices(instance.get_handle(), &device_count, nullptr);
+inline std::vector<VkPhysicalDevice> PhysicalDevice::get_available_physical_devices(const Instance& instance) noexcept {
+    uint32_t device_count = 0;
+    vkEnumeratePhysicalDevices(instance.get_handle(), &device_count, nullptr);
 
-	STRING_ASSERT(device_count > 0);
+    STRING_ASSERT(device_count > 0);
 
-	std::vector<VkPhysicalDevice> devices(device_count);
-	vkEnumeratePhysicalDevices(instance.get_handle(), &device_count, devices.data());
+    std::vector<VkPhysicalDevice> devices(device_count);
+    vkEnumeratePhysicalDevices(instance.get_handle(), &device_count, devices.data());
 
-	STRING_ASSERT(devices.size() > 0);
-	return devices;
+    STRING_ASSERT(devices.size() > 0);
+    return devices;
 }
 
-inline bool PhysicalDevice::is_device_suitable(const VkPhysicalDevice &device) const noexcept
-{
-	VkPhysicalDeviceProperties device_properties;
-	VkPhysicalDeviceFeatures device_features;
-	vkGetPhysicalDeviceProperties(device, &device_properties);
+inline bool PhysicalDevice::is_device_suitable(const VkPhysicalDevice& device) const noexcept {
+    VkPhysicalDeviceProperties device_properties;
+    VkPhysicalDeviceFeatures device_features;
+    vkGetPhysicalDeviceProperties(device, &device_properties);
 }
 
-inline VkPhysicalDevice PhysicalDevice::get_best_physical_device() noexcept
-{
-	VkPhysicalDevice best_physical_device{VK_NULL_HANDLE};
+inline VkPhysicalDevice PhysicalDevice::get_best_physical_device() noexcept {
+    VkPhysicalDevice best_physical_device{VK_NULL_HANDLE};
 
-	for(const auto& device : devices)
-	{
-		if(is_device_suitable(device))
-		{
-			best_physical_device = device;
-			break;
-		}
-	}
+    for (const auto& device : devices) {
+        if (is_device_suitable(device)) {
+            best_physical_device = device;
+            break;
+        }
+    }
 
-	STRING_ASSERT(best_physical_device != VK_NULL_HANDLE);
+    STRING_ASSERT(best_physical_device != VK_NULL_HANDLE);
 
-	return best_physical_device;
+    return best_physical_device;
 }
 
 }  // namespace Vulkan

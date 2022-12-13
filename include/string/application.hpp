@@ -22,7 +22,8 @@
 
 #pragma once
 
-#include <memory>
+#include <bits/stdc++.h>
+
 #include <string/core/coordinator.hpp>
 #include <string/system/render_system.hpp>
 #include <string/system/window_system.hpp>

@@ -35,10 +35,10 @@ namespace String {
 namespace Vulkan {
 
 class VulkanWindow final : String::Window {
-  private:
+private:
     GLFWwindow* window_handle_;
 
-  public:
+public:
     VulkanWindow(const Properties& properties) noexcept;
     ~VulkanWindow() noexcept;
 

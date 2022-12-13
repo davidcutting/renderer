@@ -1,4 +1,3 @@
-
 #include <string/application.hpp>
 
 int main() {

@@ -21,8 +21,8 @@ A fair warning; most of this project is experimentation and I'm no expert so imp
 ## Platforms and Versions
 | Operating System  | Library (version) | Supported     |
 | :---------------- | :---------------: | :-----------: |
-| Linux 64-bit      | Vulkan (1.2)      | Yes           |
-| Windows 64-bit    | Vulkan (1.2)      | No            |
+| Linux 64-bit      | Vulkan (1.3)      | Yes           |
+| Windows 64-bit    | Vulkan (1.3)      | No            |
 | Mac 64-bit        | Metal/MoltenVK    | No            |
 
 ## Dependencies

@@ -228,7 +228,7 @@ private:
             .applicationVersion = VK_MAKE_VERSION(0, 0, 1),
             .pEngineName = "String Engine",
             .engineVersion = VK_MAKE_VERSION(0, 0, 1),
-            .apiVersion = VK_API_VERSION_1_2,
+            .apiVersion = VK_API_VERSION_1_3,
         };
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = getDebugMessengerCreateInfo();
@@ -874,7 +874,7 @@ private:
             .pNext = nullptr,
             .commandPool = commandPool,
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            .commandBufferCount = (uint32_t) commandBuffers.size(),
+            .commandBufferCount = (uint32_t)commandBuffers.size(),
         };
 
         if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
@@ -973,7 +973,8 @@ private:
 
         // Check to see if we properly acquired next image from swapchain
         // Could be out of date, resulting from window resizes... Recreate if necessary
-        if (next_image_result == VK_ERROR_OUT_OF_DATE_KHR || next_image_result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+        if (next_image_result == VK_ERROR_OUT_OF_DATE_KHR || next_image_result == VK_SUBOPTIMAL_KHR ||
+            framebufferResized) {
             framebufferResized = false;
             recreateSwapChain();
             return;

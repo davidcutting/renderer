@@ -12,7 +12,7 @@ foreach s : shaders
         s.split('.')[0] + '_' + s.split('.')[1] + '_shader',
         input : s,
         output : '@PLAINNAME@.spv',
-        command : ['glslangValidator', '--target-env', 'vulkan1.2', '-o', '@OUTPUT@', '@INPUT@'],
+        command : ['glslangValidator', '--target-env', 'vulkan1.3', '-o', '@OUTPUT@', '@INPUT@'],
         install : true,
         install_dir : 'shaders'
     )

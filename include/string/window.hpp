@@ -40,7 +40,7 @@ enum class VSync { OFF, ON };
 }  // namespace View
 
 class Window {
-  public:
+public:
     struct Properties {
         std::string title = "unnamed window";
         View::Mode mode = View::Mode::WINDOWED;
@@ -49,10 +49,10 @@ class Window {
         View::Extent extent = {1280, 720};
     };
 
-  protected:
+protected:
     Window::Properties _window_properties;
 
-  public:
+public:
     Window(const Window::Properties& properties) noexcept;
     virtual ~Window() = default;
 
