@@ -3,17 +3,10 @@
 		{
 			"name": "String Engine",
 			"path": ".."
-		},
-		{
-			"name": "String Old",
-			"path": "../../string_old"
-		},
-		{
-			"path": "../../2019-ecs"
 		}
 	],
 	"settings": {
-		"clangd.path": "/usr/bin/clangd-15",
+		"clangd.path": "/usr/bin/clangd-14",
 		"mesonbuild.configureOnOpen": true,
 		"mesonbuild.buildFolder": "build"
 	},

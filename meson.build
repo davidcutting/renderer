@@ -17,8 +17,6 @@ if compiler.get_id() == 'gcc'
     message('Compiler: GCC')
 elif compiler.get_id() == 'clang'
     message('Compiler: LLVM/Clang')
-    libs_compiler = ['-stdlib=libc++']
-    libs_linker   = ['-stdlib=libc++']
 endif
 
 if get_option('buildtype') == 'release'
@@ -29,7 +27,7 @@ elif get_option('buildtype') == 'debug'
     release = ['-DSTRING_DEBUG']
 endif
 
-add_project_arguments(release, libs_compiler, libs_linker, language : 'cpp')
+add_project_arguments(release, language : 'cpp')
 
 build_args = [
 ]
