@@ -25,8 +25,10 @@
 #include <bits/stdc++.h>
 
 #include <string/core/coordinator.hpp>
+#include <string/component/render_components.hpp>
 #include <string/system/render_system.hpp>
 #include <string/system/window_system.hpp>
+#include <vector>
 
 namespace String {
 
@@ -35,6 +37,12 @@ public:
     HelloTriangleApplication() {
         coordinator = std::make_shared<Coordinator>();
 
+        vertices = {
+            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+        };
+
         coordinator->init();
 
         window_system = coordinator->register_system<WindowSystem>();
@@ -42,6 +50,7 @@ public:
 
         rendering_system = coordinator->register_system<RenderSystem>();
         rendering_system->set_window(window_system->vulkan_window);
+        rendering_system->set_scene(vertices);
         rendering_system->init();
     };
 
@@ -65,6 +74,8 @@ private:
     std::shared_ptr<Coordinator> coordinator;
     std::shared_ptr<RenderSystem> rendering_system;
     std::shared_ptr<WindowSystem> window_system;
+
+    std::vector<Vertex> vertices;
 };
 
 }  // namespace String
