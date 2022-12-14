@@ -109,7 +109,15 @@ public:
         vkDestroyInstance(instance, nullptr);
     }
 
-    void update(float dt) { drawFrame(); }
+    void update(float dt) {
+        auto startTime = std::chrono::high_resolution_clock::now();
+
+        drawFrame();
+
+        auto stopTime = std::chrono::high_resolution_clock::now();
+        auto render_time = std::chrono::duration<float, std::chrono::seconds::period>(stopTime - startTime).count();
+        frame_rate = dt / render_time;
+    }
 
     void set_window(std::shared_ptr<Vulkan::VulkanWindow> window) { vulkan_window = std::move(window); }
 
@@ -117,6 +125,8 @@ public:
 
 private:
     std::shared_ptr<Vulkan::VulkanWindow> vulkan_window;
+
+    float frame_rate = 0.0f;
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -778,6 +788,7 @@ private:
             .depthBiasEnable = VK_FALSE,
             .depthBiasConstantFactor = 0.0f,
             .depthBiasClamp = 0.0f,
+            .depthBiasSlopeFactor = 0.0f,
             .lineWidth = 1.0f,
         };
 
@@ -858,6 +869,7 @@ private:
             .renderPass = renderPass,
             .subpass = 0,
             .basePipelineHandle = VK_NULL_HANDLE,
+            .basePipelineIndex = 0,
         };
 
         if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) !=
@@ -1136,7 +1148,26 @@ private:
                                                         VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                         void* pUserData) {
-        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+        switch (messageSeverity) {
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: {
+                STRING_LOG_ERROR(pCallbackData->pMessage);
+                break;
+            }
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: {
+                STRING_LOG_INFO(pCallbackData->pMessage);
+                break;
+            }
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: {
+                STRING_LOG_WARN(pCallbackData->pMessage);
+                break;
+            }
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: {
+                STRING_LOG_TRACE(pCallbackData->pMessage);
+                break;
+            }
+            default:
+                STRING_LOG_INFO(pCallbackData->pMessage);
+        }
 
         return VK_FALSE;
     }
