@@ -24,58 +24,58 @@
 
 #include <bits/stdc++.h>
 
-#include <string/core/coordinator.hpp>
 #include <string/component/render_components.hpp>
+#include <string/core/coordinator.hpp>
 #include <string/system/render_system.hpp>
 #include <string/system/window_system.hpp>
 #include <vector>
 
+// Forward Declaration of Entrypoint Function
+int string_entrypoint(int argc, char** argv);
+
 namespace String {
 
-class HelloTriangleApplication {
-public:
-    HelloTriangleApplication() {
-        coordinator = std::make_shared<Coordinator>();
+struct ApplicationCommandLineArgs {
+    int argc = 0;
+    char** argv = nullptr;
 
-        vertices = {
-            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-        };
-
-        coordinator->init();
-
-        window_system = coordinator->register_system<WindowSystem>();
-        window_system->init();
-
-        rendering_system = coordinator->register_system<RenderSystem>();
-        rendering_system->set_window(window_system->vulkan_window);
-        rendering_system->set_scene(vertices);
-        rendering_system->init();
-    };
-
-    ~HelloTriangleApplication() { rendering_system->shutdown(); }
-
-    void run() {
-        float dt = 0.0f;
-
-        while (window_system->is_active()) {
-            auto startTime = std::chrono::high_resolution_clock::now();
-
-            window_system->update();
-            rendering_system->update(dt);
-
-            auto stopTime = std::chrono::high_resolution_clock::now();
-            dt = std::chrono::duration<float, std::chrono::seconds::period>(stopTime - startTime).count();
-        }
+    const char* operator[](int index) const {
+        STRING_ASSERT(index < argc);
+        return argv[index];
     }
+};
+
+struct ApplicationSpecification {
+    std::string name = "String Application";
+    std::string working_directory;
+    ApplicationCommandLineArgs command_line_args;
+};
+
+class Application {
+public:
+    Application(const ApplicationSpecification& specification) noexcept;
+    ~Application();
 
 private:
+    ApplicationSpecification specification;
+
     std::shared_ptr<Coordinator> coordinator;
     std::shared_ptr<RenderSystem> rendering_system;
     std::shared_ptr<WindowSystem> window_system;
 
     std::vector<Vertex> vertices;
+
+    /** @brief Note this is a Singleton class as it is tied to the entrypoint, and there can only be one entrypoint.*/
+    static Application* instance;
+
+    /** @brief This should only be called once by the entrypoint. */
+    auto run() const noexcept -> void;
+
+    /** @brief Allow the entrypoint to call run() */
+    friend int ::string_entrypoint(int argc, char** argv);
 };
+
+// To be defined in CLIENT
+Application* CreateApplication(ApplicationCommandLineArgs args);
 
 }  // namespace String

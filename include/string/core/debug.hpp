@@ -65,12 +65,8 @@ inline void Logger::initialize() noexcept {
     logger_inst_->flush_on(spdlog::level::trace);
 }
 inline const std::shared_ptr<spdlog::logger>& Logger::get_logger() noexcept {
-    if (logger_inst_ != nullptr) {
-        return logger_inst_;
-    } else {
-        Logger::initialize();
-        return logger_inst_;
-    }
+    STRING_ASSERT(logger_inst_ != nullptr);
+    return logger_inst_;
 }
 
 }  // namespace String

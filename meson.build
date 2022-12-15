@@ -41,7 +41,7 @@ build_args = [
 include_dir = include_directories('include')
 
 src = [
-    'src/main.cpp'
+    'src/sandbox_app.cpp'
 ]
 
 deps = [
