@@ -10,7 +10,7 @@ project(
     ]
 )
 
-project_description = 'A Vulkan renderer.'
+project_description = 'Simple Tiny RenderING engine, my hobby engine.'
 
 compiler = meson.get_compiler('cpp')
 if compiler.get_id() == 'gcc'
@@ -41,7 +41,7 @@ build_args = [
 include_dir = include_directories('include')
 
 src = [
-    'src/sandbox_app.cpp'
+    'src/application.cpp'
 ]
 
 deps = [
@@ -57,7 +57,7 @@ build_args += [
     '-DPROJECT_VERSION=' + meson.project_version()
 ]
 
-string = executable(
+shared_target = shared_library(
     meson.project_name(),
     dependencies: deps,
     include_directories : include_dir,
@@ -66,14 +66,16 @@ string = executable(
     cpp_args : build_args
 )
 
-pkg_mod = import('pkgconfig')
-pkg_mod.generate(
-    name : meson.project_name(),
-    filebase : meson.project_name(),
-    description : project_description,
-    subdirs : meson.project_name(),
-    #libraries : [shared_target, static_target]
+static_target = static_library(
+    meson.project_name(),
+    dependencies: deps,
+    include_directories : include_dir,
+    sources : src,
+    install : true,
+    cpp_args : build_args
 )
+
+install_subdir('include/string', install_dir : 'include')
 
 # --------------------------------------------------
 
@@ -91,10 +93,18 @@ endif
 # Project
 # ======
 
+pkg_mod = import('pkgconfig')
+pkg_mod.generate(
+    name : meson.project_name(),
+    filebase : meson.project_name(),
+    description : project_description,
+    subdirs : meson.project_name(),
+    libraries : [ shared_target, static_target ]
+)
+
 project_deps = declare_dependency(
     include_directories : include_dir,
-    sources : src,
-    link_with : string
+    link_with : [ static_target ]
 )
 
 set_variable(meson.project_name() + '_dep', project_deps)

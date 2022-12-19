@@ -3,6 +3,10 @@
 		{
 			"name": "String Engine",
 			"path": ".."
+		},
+		{
+			"name": "Hello Triangle Example",
+			"path": "../../hello_triangle"
 		}
 	],
 	"settings": {

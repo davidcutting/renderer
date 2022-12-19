@@ -161,6 +161,9 @@ private:
     VkDeviceMemory vertex_buffer_memory;
     std::vector<Vertex> scene_data;
 
+    std::string vertex_shader_path = "/usr/local/include/string/shaders/2d_shader.vert.spv";
+    std::string fragment_shader_path = "/usr/local/include/string/shaders/2d_shader.frag.spv";
+
     bool framebufferResized;
 
     uint32_t currentFrame = 0;
@@ -717,8 +720,8 @@ private:
     }
 
     void createGraphicsPipeline() {
-        auto vertShaderCode = readFile("shaders/2d_shader.vert.spv");
-        auto fragShaderCode = readFile("shaders/2d_shader.frag.spv");
+        auto vertShaderCode = readFile(vertex_shader_path);
+        auto fragShaderCode = readFile(fragment_shader_path);
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);

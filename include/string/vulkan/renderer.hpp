@@ -21,27 +21,22 @@
 // SOFTWARE.
 #pragma once
 
-#include <string/core/debug.hpp>
-#include <string/core/version.hpp>
-
 #include <bits/stdc++.h>
-
-#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+
+#include <string/graphics/renderer.hpp>
 
 namespace String {
 namespace Vulkan {
 
-class Instance {
+class Renderer : Graphics::Renderer<Renderer> {
 public:
-    Instance(const std::string& application_name, const Version& application_version);
-    ~Instance();
+    void initialize() noexcept;
 
-    VkInstance get_handle() const noexcept;
-private:
-    VkInstance instance_handle_ = VK_NULL_HANDLE;
-    uint32_t num_extensions_available = 0;
+    void shutdown() noexcept;
+
+    void draw() noexcept;
 };
 
-}  // namespace Vulkan
-}  // namespace String
+}
+}

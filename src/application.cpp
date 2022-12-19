@@ -1,6 +1,9 @@
+#include <memory>
 #include <string/application.hpp>
 
 namespace String {
+
+Application* Application::instance = nullptr;
 
 Application::Application(const ApplicationSpecification& specification) noexcept : specification(specification) {
     instance = this;
@@ -11,6 +14,7 @@ Application::Application(const ApplicationSpecification& specification) noexcept
         {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
     };
 
+    coordinator = std::make_shared<Coordinator>();
     coordinator->init();
 
     window_system = coordinator->register_system<WindowSystem>();

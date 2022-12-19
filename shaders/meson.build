@@ -14,6 +14,6 @@ foreach s : shaders
         output : '@PLAINNAME@.spv',
         command : ['glslangValidator', '--target-env', 'vulkan1.3', '-o', '@OUTPUT@', '@INPUT@'],
         install : true,
-        install_dir : 'shaders'
+        install_dir : 'include/string/shaders'
     )
 endforeach
