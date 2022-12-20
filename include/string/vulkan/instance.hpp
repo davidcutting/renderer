@@ -21,13 +21,10 @@
 // SOFTWARE.
 #pragma once
 
-#include <string/core/debug.hpp>
-#include <string/core/version.hpp>
-
 #include <bits/stdc++.h>
-
-#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+
+#include <string/core/version.hpp>
 
 namespace String {
 namespace Vulkan {
@@ -35,12 +32,34 @@ namespace Vulkan {
 class Instance {
 public:
     Instance(const std::string& application_name, const Version& application_version);
+    Instance(VkInstance instance);
     ~Instance();
 
     VkInstance get_handle() const noexcept;
+    bool is_extension_enabled(const char* extension) const noexcept;
+    const std::vector<const char*>& get_extensions() const noexcept;
+    const std::vector<VkLayerProperties>& get_layer_properties() const noexcept;
+
 private:
-    VkInstance instance_handle_ = VK_NULL_HANDLE;
-    uint32_t num_extensions_available = 0;
+    VkResult create_debug_utils_messenger_ext(VkInstance instance,
+                                              const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                              const VkAllocationCallbacks* pAllocator,
+                                              VkDebugUtilsMessengerEXT* pDebugMessenger) noexcept;
+    void destroy_debug_utils_messenger_ext(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+                                           const VkAllocationCallbacks* pAllocator) noexcept;
+
+private:
+    /** @brief Vulkan Instance handle */
+    VkInstance instance_handle_{VK_NULL_HANDLE};
+
+    /** @brief List of enabled Vulkan extensions */
+    std::vector<const char*> enabled_extensions_;
+
+    /** @brief List of enabled Vulkan layers */
+    std::vector<const char*> enabled_layers_{"VK_LAYER_KHRONOS_validation"};
+
+    /** @brief Vulkan validation callbacks and messenger for logging. */
+    VkDebugUtilsMessengerEXT debug_utils_messenger_{VK_NULL_HANDLE};
 };
 
 }  // namespace Vulkan

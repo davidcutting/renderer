@@ -1148,9 +1148,9 @@ private:
     }
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                        VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                        VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                        void* pUserData) {
+                                                        void* /*pUserData*/) {
         switch (messageSeverity) {
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: {
                 STRING_LOG_ERROR(pCallbackData->pMessage);
@@ -1171,7 +1171,6 @@ private:
             default:
                 STRING_LOG_INFO(pCallbackData->pMessage);
         }
-
         return VK_FALSE;
     }
 };

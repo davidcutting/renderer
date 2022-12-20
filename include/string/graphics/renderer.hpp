@@ -25,7 +25,7 @@ namespace String {
 namespace Graphics {
 
 template <class Derived>
-class Renderer {
+class RendererCRTP {
 private:
     friend Derived;
     Derived& impl() { return static_cast<Derived&>(*this); }
@@ -36,6 +36,14 @@ public:
     void shutdown() noexcept { impl().shutdown(); }
 
     void draw() noexcept { impl().draw(); }
+};
+
+class Renderer {
+public:
+    virtual ~Renderer();
+    virtual void initialize() noexcept = 0;
+    virtual void shutdown() noexcept = 0;
+    virtual void draw() noexcept = 0;
 };
 
 }  // namespace Graphics

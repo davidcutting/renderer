@@ -29,13 +29,13 @@
 namespace String {
 namespace Vulkan {
 
-class Renderer : Graphics::Renderer<Renderer> {
+class Renderer : Graphics::Renderer {
 public:
-    void initialize() noexcept;
+    virtual void initialize() noexcept;
 
-    void shutdown() noexcept;
+    virtual void shutdown() noexcept;
 
-    void draw() noexcept;
+    virtual  void draw() noexcept;
 };
 
 }
