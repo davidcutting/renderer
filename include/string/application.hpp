@@ -74,6 +74,6 @@ private:
 };
 
 // To be defined in CLIENT
-Application* CreateApplication(ApplicationCommandLineArgs args);
+inline Application* CreateApplication(ApplicationCommandLineArgs args);
 
 }  // namespace String
