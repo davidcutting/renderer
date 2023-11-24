@@ -69,8 +69,8 @@ public:
 
     // System methods
     template <typename T>
-    std::shared_ptr<T> register_system() {
-        return system_manager_->register_system<T>();
+    void register_system(const std::shared_ptr<T>& system) {
+        system_manager_->register_system<T>(system);
     }
 
     template <typename T>

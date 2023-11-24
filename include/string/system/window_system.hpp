@@ -10,7 +10,7 @@ namespace String {
 
 class WindowSystem : public System {
 public:
-    void init() {
+    WindowSystem() {
         Window::Properties properties{
             .title = "Hello Triangle",
             .mode = String::View::Mode::WINDOWED,
@@ -22,13 +22,23 @@ public:
         vulkan_window = std::make_shared<Vulkan::VulkanWindow>(properties);
     }
 
-    void update() { vulkan_window->update(); }
+    auto update(float dt) -> void override {
+        auto startTime = std::chrono::high_resolution_clock::now();
+
+        vulkan_window->update();
+
+        auto stopTime = std::chrono::high_resolution_clock::now();
+        auto render_time = std::chrono::duration<float, std::chrono::seconds::period>(stopTime - startTime).count();
+        frame_rate = dt / render_time;
+    }
 
     bool is_active() { return vulkan_window->is_open(); }
 
     std::shared_ptr<Vulkan::VulkanWindow> vulkan_window;
 
 private:
+    float frame_rate = 0.0f;
+
     std::shared_ptr<Coordinator> coordinator;
 };
 

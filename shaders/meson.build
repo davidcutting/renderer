@@ -4,7 +4,9 @@ shaders = [
     '2d_shader.frag',
     '2d_shader.vert',
     '3d_shader.frag',
-    '3d_shader.vert'
+    '3d_shader.vert',
+    'hello_triangle.frag',
+    'hello_triangle.vert'
 ]
 shader_targets = []
 foreach s : shaders

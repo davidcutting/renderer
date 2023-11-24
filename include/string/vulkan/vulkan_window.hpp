@@ -47,7 +47,7 @@ public:
     virtual bool is_open() const noexcept override final;
     virtual void* get_native_window() const noexcept override final;
 
-    // TODO: Is this the best place to do this? Maybe VulkanInstance or VulkanContext is better?
+    // TODO: Is this the best place to do this?
     std::optional<VkSurfaceKHR> create_window_surface(const VkInstance& instance) const noexcept;
 };  // class VulkanWindow
 

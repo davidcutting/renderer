@@ -1,5 +1,7 @@
 #include <memory>
 #include <string/application.hpp>
+#include "string/system/render_system.hpp"
+#include "string/system/window_system.hpp"
 
 namespace String {
 
@@ -17,16 +19,14 @@ Application::Application(const ApplicationSpecification& specification) noexcept
     coordinator = std::make_shared<Coordinator>();
     coordinator->init();
 
-    window_system = coordinator->register_system<WindowSystem>();
-    window_system->init();
+    window_system = std::make_shared<WindowSystem>();
+    rendering_system = std::make_shared<RenderSystem>(window_system->vulkan_window);
 
-    rendering_system = coordinator->register_system<RenderSystem>();
-    rendering_system->set_window(window_system->vulkan_window);
-    rendering_system->set_scene(vertices);
-    rendering_system->init();
+    coordinator->register_system(window_system);
+    coordinator->register_system(rendering_system);   
 }
 
-Application::~Application() { rendering_system->shutdown(); }
+Application::~Application() {}
 
 auto Application::run() const noexcept -> void {
     float dt = 0.0f;
@@ -34,7 +34,7 @@ auto Application::run() const noexcept -> void {
     while (window_system->is_active()) {
         auto startTime = std::chrono::high_resolution_clock::now();
 
-        window_system->update();
+        window_system->update(dt);
         rendering_system->update(dt);
 
         auto stopTime = std::chrono::high_resolution_clock::now();

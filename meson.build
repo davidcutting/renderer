@@ -41,7 +41,8 @@ build_args = [
 include_dir = include_directories('include')
 
 src = [
-    'src/application.cpp'
+    'src/application.cpp',
+    'src/VkBootstrap.cpp'
 ]
 
 deps = [

@@ -9,19 +9,20 @@ namespace String {
 class System {
 public:
     std::set<Entity> entities;
+
+    virtual ~System() = default;
+    virtual auto update(float dt) -> void = 0;
 };
 
 class SystemManager {
 public:
     template <typename T>
-    std::shared_ptr<T> register_system() {
+    void register_system(const std::shared_ptr<T>& system) {
         const char* type_name = typeid(T).name();
 
         assert(systems_.find(type_name) == systems_.end() && "Registering system more than once.");
 
-        auto system = std::make_shared<T>();
         systems_.insert({type_name, system});
-        return system;
     }
 
     template <typename T>
