@@ -23,10 +23,10 @@
 
 #include <bits/stdc++.h>
 
-#include <string/component/render_components.hpp>
-#include <string/core/coordinator.hpp>
-#include <string/system/render_system.hpp>
-#include <string/system/window_system.hpp>
+#include <string/ecs/component/render_components.hpp>
+#include <string/ecs/coordinator.hpp>
+#include <string/ecs/system/render_system.hpp>
+#include <string/ecs/system/window_system.hpp>
 #include <string/core/debug.hpp>
 
 // Forward Declaration of Entrypoint Function

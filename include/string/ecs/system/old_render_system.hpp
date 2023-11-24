@@ -8,11 +8,10 @@
 #include <cstring>
 #include <exception>
 #include <stdexcept>
-#include <string/component/render_components.hpp>
+#include <string/ecs/component/render_components.hpp>
 #include <string/core/debug.hpp>
 #include <string/core/system.hpp>
 #include <string/vulkan/vulkan_window.hpp>
-#include <string/vulkan/physical_device_selector.hpp>
 #include <string/window.hpp>
 #include <vector>
 

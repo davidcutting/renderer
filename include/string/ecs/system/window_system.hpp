@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <string/core/coordinator.hpp>
-#include <string/core/system.hpp>
+#include <string/ecs/coordinator.hpp>
+#include <string/ecs/system.hpp>
 #include <string/vulkan/vulkan_window.hpp>
 #include <string/window.hpp>
 

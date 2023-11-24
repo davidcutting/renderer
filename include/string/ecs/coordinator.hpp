@@ -2,10 +2,10 @@
 
 #include <bits/stdc++.h>
 
-#include <string/core/component.hpp>
-#include <string/core/entity.hpp>
-#include <string/core/event.hpp>
-#include <string/core/system.hpp>
+#include <string/ecs/component.hpp>
+#include <string/ecs/entity.hpp>
+#include <string/ecs/event.hpp>
+#include <string/ecs/system.hpp>
 
 namespace String {
 

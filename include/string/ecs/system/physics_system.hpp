@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string/component/physics_components.hpp>
-#include <string/core/coordinator.hpp>
-#include <string/core/system.hpp>
+#include <string/ecs/component/physics_components.hpp>
+#include <string/ecs/coordinator.hpp>
+#include <string/ecs/system.hpp>
 
 namespace String {
 

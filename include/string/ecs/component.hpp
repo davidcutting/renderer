@@ -3,7 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
-#include <string/core/entity.hpp>
+#include <string/ecs/entity.hpp>
 #include <unordered_map>
 
 namespace String {

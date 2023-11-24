@@ -2,7 +2,7 @@
 
 #include <bits/stdc++.h>
 
-#include <string/core/entity.hpp>
+#include <string/ecs/entity.hpp>
 
 namespace String {
 

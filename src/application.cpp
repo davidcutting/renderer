@@ -1,7 +1,7 @@
 #include <memory>
 #include <string/application.hpp>
-#include "string/system/render_system.hpp"
-#include "string/system/window_system.hpp"
+#include "string/ecs/system/render_system.hpp"
+#include "string/ecs/system/window_system.hpp"
 
 namespace String {
 

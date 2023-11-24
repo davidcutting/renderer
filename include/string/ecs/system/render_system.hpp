@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <string/core/system.hpp>
+#include <string/ecs/system.hpp>
 #include <string/vulkan/vulkan_renderer.hpp>
 #include "string/vulkan/vulkan_window.hpp"
 
