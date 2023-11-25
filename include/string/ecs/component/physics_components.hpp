@@ -19,8 +19,4 @@ struct Transform {
     Vec3 scale;
 };
 
-struct Thrust {
-    Vec3 force;
-};
-
 }  // namespace String

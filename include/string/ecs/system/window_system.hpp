@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <string/ecs/coordinator.hpp>
 #include <string/ecs/system.hpp>
 #include <string/vulkan/vulkan_window.hpp>
 #include <string/window.hpp>
@@ -38,8 +37,6 @@ public:
 
 private:
     float frame_rate = 0.0f;
-
-    std::shared_ptr<Coordinator> coordinator;
 };
 
 }  // namespace String

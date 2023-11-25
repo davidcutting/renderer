@@ -28,6 +28,7 @@
 #include <string/ecs/system/render_system.hpp>
 #include <string/ecs/system/window_system.hpp>
 #include <string/core/debug.hpp>
+#include "string/ecs/system/physics_system.hpp"
 
 // Forward Declaration of Entrypoint Function
 int main(int argc, char** argv);
@@ -61,8 +62,7 @@ private:
     std::shared_ptr<Coordinator> coordinator;
     std::shared_ptr<RenderSystem> rendering_system;
     std::shared_ptr<WindowSystem> window_system;
-
-    std::vector<Vertex> vertices;
+    std::shared_ptr<PhysicsSystem> physics_system;
 
     /** @brief Note this is a Singleton class as it is tied to the entrypoint, and there can only be one entrypoint.*/
     static Application* instance;

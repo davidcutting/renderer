@@ -2,17 +2,26 @@
 
 #include <memory>
 #include <string/ecs/system.hpp>
+#include <string/ecs/coordinator.hpp>
 #include <string/vulkan/vulkan_renderer.hpp>
+#include "string/ecs/component/physics_components.hpp"
+#include "string/ecs/component/render_components.hpp"
 #include "string/vulkan/vulkan_window.hpp"
 
 namespace String {
 
 class RenderSystem : public System {
 public:
-    explicit RenderSystem(const std::shared_ptr<Vulkan::VulkanWindow>& window) : renderer_(window) {}
+    explicit RenderSystem(const std::shared_ptr<Coordinator>& coordinator, const std::shared_ptr<Vulkan::VulkanWindow>& window) : coordinator(coordinator), renderer_(window) {}
 
     auto update(float dt) -> void override {
         auto startTime = std::chrono::high_resolution_clock::now();
+
+        /*
+        for (const auto& entity : entities) {
+            auto& mesh = coordinator->get_component<Mesh>(entity);
+            auto& transform = coordinator->get_component<Transform>(entity);
+        }*/
 
         renderer_.draw_frame();
 
@@ -23,6 +32,8 @@ public:
 
 private:
     float frame_rate = 0.0f;
+
+    std::shared_ptr<Coordinator> coordinator;
 
     Vulkan::VulkanRenderer renderer_;
 };
