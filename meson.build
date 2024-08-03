@@ -41,8 +41,7 @@ build_args = [
 include_dir = include_directories('include')
 
 src = [
-    'src/application.cpp',
-    'src/VkBootstrap.cpp'
+    'src/renderer.cpp'
 ]
 
 deps = [
@@ -58,25 +57,35 @@ build_args += [
     '-DPROJECT_VERSION=' + meson.project_version()
 ]
 
-shared_target = shared_library(
+exe_target = executable(
     meson.project_name(),
-    dependencies: deps,
+    dependencies : deps,
     include_directories : include_dir,
     sources : src,
     install : true,
     cpp_args : build_args
 )
 
-static_target = static_library(
-    meson.project_name(),
-    dependencies: deps,
-    include_directories : include_dir,
-    sources : src,
-    install : true,
-    cpp_args : build_args
-)
+#shared_target = shared_library(
+#    meson.project_name(),
+#    dependencies: deps,
+#    include_directories : include_dir,
+#    sources : src,
+#    install : true,
+#    cpp_args : build_args
+#)
+#
+#static_target = static_library(
+#    meson.project_name(),
+#    dependencies: deps,
+#    include_directories : include_dir,
+#    sources : src,
+#    install : true,
+#    cpp_args : build_args
+#)
 
 install_subdir('include/string', install_dir : 'include')
+install_subdir('assets', install_dir : 'assets')
 
 # --------------------------------------------------
 
@@ -94,21 +103,21 @@ endif
 # Project
 # ======
 
-pkg_mod = import('pkgconfig')
-pkg_mod.generate(
-    name : meson.project_name(),
-    filebase : meson.project_name(),
-    description : project_description,
-    subdirs : meson.project_name(),
-    libraries : [ shared_target, static_target ]
-)
-
-project_deps = declare_dependency(
-    include_directories : include_dir,
-    link_with : [ static_target ]
-)
-
-set_variable(meson.project_name() + '_dep', project_deps)
+#pkg_mod = import('pkgconfig')
+#pkg_mod.generate(
+#    name : meson.project_name(),
+#    filebase : meson.project_name(),
+#    description : project_description,
+#    subdirs : meson.project_name(),
+#    libraries : [ shared_target, static_target ]
+#)
+#
+#project_deps = declare_dependency(
+#    include_directories : include_dir,
+#    link_with : [ static_target ]
+#)
+#
+#set_variable(meson.project_name() + '_dep', project_deps)
 
 # --------------------------------------------------
 
