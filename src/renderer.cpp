@@ -1,3 +1,5 @@
+#include <vulkan/vulkan_core.h>
+#include <functional>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -23,9 +25,11 @@
 #include <iostream>
 #include <limits>
 #include <optional>
-#include <string>
 #include <set>
 #include <stdexcept>
+#include <string/core/logger.hpp>
+#include <string/window.hpp>
+#include <string>
 #include <vector>
 
 const uint32_t WIDTH = 800;
@@ -136,6 +140,8 @@ struct UniformBufferObject {
 
 class HelloTriangleApplication {
 public:
+    explicit HelloTriangleApplication() : window(String::Window::Properties{.title = "Vulkan Test Bed"}) {}
+
     void run() {
         initWindow();
         initVulkan();
@@ -144,7 +150,7 @@ public:
     }
 
 private:
-    GLFWwindow* window;
+    String::Window window;
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -202,20 +208,9 @@ private:
 
     bool framebufferResized = false;
 
-    void initWindow() {
-        glfwInit();
+    void initWindow() { window.register_resize_event_callback(std::bind(&HelloTriangleApplication::framebuffer_resize_callback, this, std::placeholders::_1)); }
 
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-        glfwSetWindowUserPointer(window, this);
-        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-    }
-
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-        auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
-        app->framebufferResized = true;
-    }
+    void framebuffer_resize_callback(const String::View::Extent& extent) { framebufferResized = true; }
 
     void initVulkan() {
         createInstance();
@@ -245,8 +240,8 @@ private:
     }
 
     void mainLoop() {
-        while (!glfwWindowShouldClose(window)) {
-            glfwPollEvents();
+        while (!window.should_close()) {
+            window.update();
             drawFrame();
         }
 
@@ -314,16 +309,14 @@ private:
         vkDestroySurfaceKHR(instance, surface, nullptr);
         vkDestroyInstance(instance, nullptr);
 
-        glfwDestroyWindow(window);
-
         glfwTerminate();
     }
 
     void recreateSwapChain() {
         int width = 0, height = 0;
-        glfwGetFramebufferSize(window, &width, &height);
+        glfwGetFramebufferSize(window.get_native_handle(), &width, &height);
         while (width == 0 || height == 0) {
-            glfwGetFramebufferSize(window, &width, &height);
+            glfwGetFramebufferSize(window.get_native_handle(), &width, &height);
             glfwWaitEvents();
         }
 
@@ -342,17 +335,18 @@ private:
             throw std::runtime_error("validation layers requested, but not available!");
         }
 
-        VkApplicationInfo appInfo{};
-        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "Hello Triangle";
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "No Engine";
-        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_0;
+        VkApplicationInfo application_info{
+            .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .pApplicationName = "Vulkan Test Bed",
+            .applicationVersion = VK_MAKE_VERSION(0, 1, 0),
+            .pEngineName = "String",
+            .engineVersion = VK_MAKE_VERSION(0, 1, 0),
+            .apiVersion = VK_API_VERSION_1_3,
+        };
 
         VkInstanceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &appInfo;
+        createInfo.pApplicationInfo = &application_info;
 
         auto extensions = getRequiredExtensions();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
@@ -400,7 +394,7 @@ private:
     }
 
     void createSurface() {
-        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+        if (glfwCreateWindowSurface(instance, window.get_native_handle(), nullptr, &surface) != VK_SUCCESS) {
             throw std::runtime_error("failed to create window surface!");
         }
     }
@@ -408,7 +402,6 @@ private:
     void pickPhysicalDevice() {
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-
         if (deviceCount == 0) {
             throw std::runtime_error("failed to find GPUs with Vulkan support!");
         }
@@ -418,14 +411,29 @@ private:
 
         for (const auto& device : devices) {
             if (isDeviceSuitable(device)) {
+                VkPhysicalDeviceProperties props;
+                vkGetPhysicalDeviceProperties(device, &props);
+                if (props.deviceType == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+                    // NOTE: Force use of first discrete GPU
+                    // fixes weird issue with one of my laptops where it doesn't
+                    // select nvidia 950m over intel integrated graphics on
+                    // ubuntu 20.04? (shrug)
+                    // TODO(dcut): Handle multiple Discrete GPU  situation?
+                    physicalDevice = device;
+                    break;
+                }
+                // use whatever device available if no discrete GPU
                 physicalDevice = device;
-                break;
             }
         }
 
         if (physicalDevice == VK_NULL_HANDLE) {
             throw std::runtime_error("failed to find a suitable GPU!");
         }
+
+        VkPhysicalDeviceProperties props;
+        vkGetPhysicalDeviceProperties(physicalDevice, &props);
+        STRING_LOG_INFO("Device name: " + std::string(props.deviceName));
     }
 
     void createLogicalDevice() {
@@ -1434,14 +1442,39 @@ private:
         return availableFormats[0];
     }
 
-    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
-        for (const auto& availablePresentMode : availablePresentModes) {
-            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-                return availablePresentMode;
+    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& available_present_modes) {
+        assert(available_present_modes.size() > 0 && "Must have available present modes.");
+
+        for (const auto& present_mode : available_present_modes) {
+            // Note: This switch is here to show a list of priority in present modes. I did it this way
+            //       so that you may change it if you like; however, the FIFO present mode is always
+            //       supported by devices, so it will always be caught in this switch case if other modes
+            //       are not listed before it.
+            switch (present_mode) {
+                case VK_PRESENT_MODE_MAILBOX_KHR:
+                    STRING_LOG_INFO("Present Mode: Mailbox");
+                    return present_mode;  // Mailbox
+                case VK_PRESENT_MODE_FIFO_KHR:
+                    STRING_LOG_INFO("Present Mode: FIFO");
+                    return present_mode;  // FIFO
+                case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
+                    STRING_LOG_INFO("Present Mode: FIFO Relaxed");
+                    return present_mode;  // FIFO Relaxed
+                case VK_PRESENT_MODE_IMMEDIATE_KHR:
+                    STRING_LOG_INFO("Present Mode: Immediate");
+                    return present_mode;  // Immediate
+                // Note: There are two other present modes as of this comment's authoring, but they will
+                //       not be supported as they require much more syncronization by the swapchain.
+                case VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR:      // Switch statement fall-through
+                case VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR:  // These are not supported by renderer
+                default:
+                    STRING_LOG_INFO("Present Mode: FIFO");
+                    return VK_PRESENT_MODE_FIFO_KHR;  // FIFO mode is required to be supported
             }
         }
-
-        return VK_PRESENT_MODE_FIFO_KHR;
+        // TODO(DCut): Remove this return and silence warnings instead
+        STRING_LOG_ERROR("Strange things happened here, but present mode is FIFO");
+        return VK_PRESENT_MODE_FIFO_KHR;  // FIFO mode is required to be supported
     }
 
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
@@ -1449,7 +1482,7 @@ private:
             return capabilities.currentExtent;
         } else {
             int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
+            glfwGetFramebufferSize(window.get_native_handle(), &width, &height);
 
             VkExtent2D actualExtent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 
@@ -1609,16 +1642,27 @@ private:
     }
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                        VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                        VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                        void* pUserData) {
-        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
+                                                        void* /*pUserData*/) {
+        const std::string message{pCallbackData->pMessage};
+        if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+            STRING_LOG_TRACE("VK Validation: " + message);
+        } else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+            STRING_LOG_INFO("VK Validation: " + message);
+        } else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+            STRING_LOG_WARN("VK Validation: " + message);
+        } else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+            STRING_LOG_ERROR("VK Validation Layer: " + message);
+        } else {
+            STRING_LOG_CRTICAL("VK Validation Layer: " + message);
+        }
         return VK_FALSE;
     }
 };
 
 int main() {
+    String::Logger::initialize();
     HelloTriangleApplication app;
 
     try {
