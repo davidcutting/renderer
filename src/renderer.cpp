@@ -1,5 +1,4 @@
 #include <vulkan/vulkan_core.h>
-#include <functional>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -22,6 +21,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <optional>
@@ -31,9 +31,6 @@
 #include <string/window.hpp>
 #include <string>
 #include <vector>
-
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
 
 const std::string MODEL_PATH = "./assets/viking_room.obj";
 const std::string TEXTURE_PATH = "./assets/viking_room.png";
@@ -142,10 +139,57 @@ class HelloTriangleApplication {
 public:
     explicit HelloTriangleApplication() : window(String::Window::Properties{.title = "Vulkan Test Bed"}) {}
 
-    void run() {
-        initWindow();
-        initVulkan();
-        mainLoop();
+    void initialize() {
+        // Window
+        window.register_resize_event_callback(
+            std::bind(&HelloTriangleApplication::framebuffer_resize_callback, this, std::placeholders::_1));
+
+        // Vulkan
+        createInstance();
+        setupDebugMessenger();
+        createSurface();
+        pickPhysicalDevice();
+        createLogicalDevice();
+        createSwapChain();
+        createImageViews();
+        createRenderPass();
+        createDescriptorSetLayout();
+        createGraphicsPipeline();
+        createCommandPool();
+        createDepthResources();
+        createFramebuffers();
+        createTextureImage();
+        createTextureImageView();
+        createTextureSampler();
+        loadModel();
+        createVertexBuffer();
+        createIndexBuffer();
+        createUniformBuffers();
+        createDescriptorPool();
+        createDescriptorSets();
+        createCommandBuffers();
+        createSyncObjects();
+    }
+
+    void mainLoop() {
+        const auto start = std::chrono::steady_clock::now();
+        // Cap at 60fps
+        const auto period = std::chrono::duration<double>(1/60);
+
+        while (!window.should_close()) {
+            window.update();
+            drawFrame();
+
+            const auto now = std::chrono::steady_clock::now();
+            const auto iterations = (now - start) / period;
+            const auto next_start = start + (iterations + 1) * period;
+
+            std::this_thread::sleep_until(next_start);
+        }
+    }
+
+    ~HelloTriangleApplication() {
+        vkDeviceWaitIdle(device);
         cleanup();
     }
 
@@ -208,45 +252,7 @@ private:
 
     bool framebufferResized = false;
 
-    void initWindow() { window.register_resize_event_callback(std::bind(&HelloTriangleApplication::framebuffer_resize_callback, this, std::placeholders::_1)); }
-
-    void framebuffer_resize_callback(const String::View::Extent& extent) { framebufferResized = true; }
-
-    void initVulkan() {
-        createInstance();
-        setupDebugMessenger();
-        createSurface();
-        pickPhysicalDevice();
-        createLogicalDevice();
-        createSwapChain();
-        createImageViews();
-        createRenderPass();
-        createDescriptorSetLayout();
-        createGraphicsPipeline();
-        createCommandPool();
-        createDepthResources();
-        createFramebuffers();
-        createTextureImage();
-        createTextureImageView();
-        createTextureSampler();
-        loadModel();
-        createVertexBuffer();
-        createIndexBuffer();
-        createUniformBuffers();
-        createDescriptorPool();
-        createDescriptorSets();
-        createCommandBuffers();
-        createSyncObjects();
-    }
-
-    void mainLoop() {
-        while (!window.should_close()) {
-            window.update();
-            drawFrame();
-        }
-
-        vkDeviceWaitIdle(device);
-    }
+    void framebuffer_resize_callback(const String::View::Extent& /*extent*/) { framebufferResized = true; }
 
     void cleanupSwapChain() {
         vkDestroyImageView(device, depthImageView, nullptr);
@@ -344,42 +350,40 @@ private:
             .apiVersion = VK_API_VERSION_1_3,
         };
 
-        VkInstanceCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &application_info;
-
         auto extensions = getRequiredExtensions();
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-        createInfo.ppEnabledExtensionNames = extensions.data();
+        extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+
+        VkInstanceCreateInfo create_info{.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+                                         .flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
+                                         .pApplicationInfo = &application_info,
+                                         .enabledLayerCount = 0,
+                                         .ppEnabledLayerNames = nullptr,
+                                         .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+                                         .ppEnabledExtensionNames = extensions.data()};
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         if (enableValidationLayers) {
-            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-            createInfo.ppEnabledLayerNames = validationLayers.data();
+            create_info.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+            create_info.ppEnabledLayerNames = validationLayers.data();
 
             populateDebugMessengerCreateInfo(debugCreateInfo);
-            createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-        } else {
-            createInfo.enabledLayerCount = 0;
-
-            createInfo.pNext = nullptr;
+            create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
         }
 
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+        if (vkCreateInstance(&create_info, nullptr, &instance) != VK_SUCCESS) {
             throw std::runtime_error("failed to create instance!");
         }
     }
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
-        createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        createInfo.pfnUserCallback = debugCallback;
+        createInfo = {.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+                      .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+                      .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                     VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                     VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+                      .pfnUserCallback = debugCallback};
     }
 
     void setupDebugMessenger() {
@@ -444,33 +448,30 @@ private:
 
         float queuePriority = 1.0f;
         for (uint32_t queueFamily : uniqueQueueFamilies) {
-            VkDeviceQueueCreateInfo queueCreateInfo{};
-            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            queueCreateInfo.queueFamilyIndex = queueFamily;
-            queueCreateInfo.queueCount = 1;
-            queueCreateInfo.pQueuePriorities = &queuePriority;
-            queueCreateInfos.push_back(queueCreateInfo);
+            VkDeviceQueueCreateInfo queue_create_info{
+                .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .queueFamilyIndex = queueFamily,
+                .queueCount = 1,
+                .pQueuePriorities = &queuePriority,
+            };
+            queueCreateInfos.push_back(queue_create_info);
         }
 
         VkPhysicalDeviceFeatures deviceFeatures{};
         deviceFeatures.samplerAnisotropy = VK_TRUE;
 
-        VkDeviceCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-        createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-        createInfo.pEnabledFeatures = &deviceFeatures;
-
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+        VkDeviceCreateInfo createInfo{.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+                                      .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
+                                      .pQueueCreateInfos = queueCreateInfos.data(),
+                                      .enabledLayerCount = 0,
+                                      .ppEnabledLayerNames = nullptr,
+                                      .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
+                                      .ppEnabledExtensionNames = deviceExtensions.data(),
+                                      .pEnabledFeatures = &deviceFeatures};
 
         if (enableValidationLayers) {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
-        } else {
-            createInfo.enabledLayerCount = 0;
         }
 
         if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
@@ -494,34 +495,32 @@ private:
             imageCount = swapChainSupport.capabilities.maxImageCount;
         }
 
-        VkSwapchainCreateInfoKHR createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = surface;
-
-        createInfo.minImageCount = imageCount;
-        createInfo.imageFormat = surfaceFormat.format;
-        createInfo.imageColorSpace = surfaceFormat.colorSpace;
-        createInfo.imageExtent = extent;
-        createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        VkSwapchainCreateInfoKHR create_info{
+            .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+            .surface = surface,
+            .minImageCount = imageCount,
+            .imageFormat = surfaceFormat.format,
+            .imageColorSpace = surfaceFormat.colorSpace,
+            .imageExtent = extent,
+            .imageArrayLayers = 1,
+            .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+            .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+            .preTransform = swapChainSupport.capabilities.currentTransform,
+            .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+            .presentMode = presentMode,
+            .clipped = VK_TRUE
+        };
 
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
         uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
         if (indices.graphicsFamily != indices.presentFamily) {
-            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-            createInfo.queueFamilyIndexCount = 2;
-            createInfo.pQueueFamilyIndices = queueFamilyIndices;
-        } else {
-            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            create_info.queueFamilyIndexCount = 2;
+            create_info.pQueueFamilyIndices = queueFamilyIndices;
         }
 
-        createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode = presentMode;
-        createInfo.clipped = VK_TRUE;
-
-        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+        if (vkCreateSwapchainKHR(device, &create_info, nullptr, &swapChain) != VK_SUCCESS) {
             throw std::runtime_error("failed to create swap chain!");
         }
 
@@ -939,7 +938,7 @@ private:
         vkBindImageMemory(device, image, imageMemory, 0);
     }
 
-    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
+    void transitionImageLayout(VkImage image, VkFormat /*format*/, VkImageLayout oldLayout, VkImageLayout newLayout) {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
@@ -1461,8 +1460,8 @@ private:
                     STRING_LOG_INFO("Present Mode: FIFO Relaxed");
                     return present_mode;  // FIFO Relaxed
                 case VK_PRESENT_MODE_IMMEDIATE_KHR:
-                    STRING_LOG_INFO("Present Mode: Immediate");
-                    return present_mode;  // Immediate
+                //    STRING_LOG_INFO("Present Mode: Immediate");
+                //    return present_mode;  // Immediate
                 // Note: There are two other present modes as of this comment's authoring, but they will
                 //       not be supported as they require much more syncronization by the swapchain.
                 case VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR:      // Switch statement fall-through
@@ -1666,7 +1665,8 @@ int main() {
     HelloTriangleApplication app;
 
     try {
-        app.run();
+        app.initialize();
+        app.mainLoop();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
