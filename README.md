@@ -5,18 +5,18 @@
 
 a set of things tied or threaded together on a thin cord.
 
-## Motivation
+## Introduction
 
-Simple Tiny RenderING engine, or String is my hobby rendering engine. I found many existing game engines lend themselves to game developers who are not interested in the nitty gritty of rendering or software in general. Many of the large engines are very featureful. Those engines have cool features and very robust tools. It can be too much. I'm not interested in having many of the features marketed to less technically minded individuals such as custom scripting languages, visual block coding, monolithic editors, ect. Simply, the purpose of this project is not to be the fastest most flexible game engine ever made, but just to be a simple sandbox without strange hacks to support your grandmother's smart watch or help little Timmy learn how to make his first video game.
+Simple Tiny RenderING engine (String) is my experimentation in this space. When evaluating alternatives, I found many existing game engines shoot to be incredibly general purpose. There are a vast number of features and robust tools. I'm not interested features such as custom scripting languages, visual block coding, monolithic editors, ect. The purpose of this project is not to replace existing general purpose game engines, but instead to be a simple sandbox that can be easily modified for more specific projects. Ultimately, one could easily pick up the engine to run simulations, experiments, games, whatever. I'm aiming for things to be loosely bound such that the engine can be extended, disabled, discarded, or whatever my project calls for.
 
-The goal is to Keep It Stupid Simple so that one could easily pick up the engine and run simulations, experiments, games, whatever. I'd like something loosely bound such that the engine can be extended, disabled, discarded, or whatever my project calls for.
+My priorities follow:
+1. Aggressive deprecation. Generally, not providing long term support for releases.
+2. Lack of broad hardware support. I will not attempt to target every platform, or keep optimizations for hardware older than ~5 years.
+3. Intentially small set of features. Your project, many of my projects, may have different requirements. My goal is to keep this code open source and available to modify fitting whatever unique requirements exist.
+4. Clarity. Aiming to utilize modern techniques and keeping up with language features to best represent the intention of the code.
+5. Speed. Of course in high performance applications such as this, but ideally balancing the trade-offs of optimization with the priors.
 
-Major priorities include:
-1. Bleeding edge. Within reason of course, but I will not be supporting very old versions of libraries, targetting every platform, or optimizing for ancient hardware. Aiming to utilize modern techniques and keeping up with language features in a way to best represent the intention of the code.
-2. Clarity. Keeping things clear and readable if possible.
-3. Speed. In that order, within reason. Speed is of course a priority in high performance applications such as this, but ideally no sacrifice in clarity to squeeze out max performance.
-
-A fair warning; most of this project is experimentation and I'm no expert so implementation of many things may be naive. I will accept pull requests gladly, but don't expect me to implement your features for you if I'm not already interested in doing so.
+A disclaimer; I see this as an experiment and I'm not an expert so implementation may be naive. I am more than happy to review pull requests, but expect I may be picky.
 
 ## Platforms and Versions
 | Operating System  | Library (version) | Supported     |
@@ -38,19 +38,16 @@ A fair warning; most of this project is experimentation and I'm no expert so imp
 
 I suggest you go for your favorite Linux distro, because I'm not supporting Windows or Mac currently. You'll need to install the listed dependencies to your system including the VulkanSDK.
 
-Afterward, set up the build with Meson using `meson setup build` then `cd build` and build the engine + install using `sudo ninja -j8 install`
+Afterward, set up the build with Meson using `meson setup build` then `meson compile -C build`
 
 ## License
 
 This project is MIT licensed. Third party libraries may/do have their own licensing.
 
-## ToDo
-
-- Refactor spdlog into fmtlog and utilize multithreaded logging
-
 ## Inspiration
 
 - Vulkan Tutorial: A Vulkan API E-book
+- Vulkan Guide: vkguide.dev
 - Sascha Willems, Adam Sawicki, Khronos: Vulkan-Samples
 - Austin Morlan: A simple Entity Component System (ECS) [C++]
 - Yan Chernikov: Hazel Game Engine

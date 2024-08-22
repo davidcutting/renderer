@@ -41,8 +41,10 @@ build_args = [
 include_dir = include_directories('include')
 
 src = [
+    'src/application.cpp',
     'src/renderer.cpp',
-    'src/window.cpp'
+    'src/window.cpp',
+    'src/main.cpp'
 ]
 
 deps = [

@@ -41,6 +41,8 @@ public:
     const Properties& get_properties() const;
     bool should_close() const;
     void resize(const View::Extent& extent);
+    void key_action(int key, int scancode, int action, int mods);
+    void mouse_action(double xpos, double ypos);
 
     GLFWwindow* get_native_handle() const { return window_handle_; };
 

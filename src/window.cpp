@@ -1,3 +1,5 @@
+#include <GLFW/glfw3.h>
+
 #include <cstdint>
 #include <stdexcept>
 #include <string/core/logger.hpp>
@@ -9,6 +11,16 @@ static void framebuffer_resize_callback(GLFWwindow* window, int width, int heigh
     auto window_ptr = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 
     window_ptr->resize({.width = static_cast<uint32_t>(width), .height = static_cast<uint32_t>(height)});
+}
+
+static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    auto window_ptr = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+    window_ptr->key_action(key, scancode, action, mods);
+}
+
+static void glfw_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    auto window_ptr = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+    window_ptr->mouse_action(xpos, ypos);
 }
 
 Window::Window(const Properties& properties) : properties_(properties) {
@@ -28,6 +40,7 @@ Window::Window(const Properties& properties) : properties_(properties) {
 
     glfwSetWindowUserPointer(window_handle_, this);
     glfwSetFramebufferSizeCallback(window_handle_, framebuffer_resize_callback);
+    glfwSetKeyCallback(window_handle_, glfw_key_callback);
 }
 
 Window::~Window() {
@@ -37,9 +50,7 @@ Window::~Window() {
 
 void Window::update() { glfwPollEvents(); }
 
-void Window::register_resize_event_callback(const ResizeEventCallbackFn& fn) {
-    resize_callbacks_.push_back(fn);
-}
+void Window::register_resize_event_callback(const ResizeEventCallbackFn& fn) { resize_callbacks_.push_back(fn); }
 
 const Window::Properties& Window::get_properties() const { return properties_; }
 
@@ -52,6 +63,14 @@ void Window::resize(const View::Extent& extent) {
     for (const auto& callback : resize_callbacks_) {
         callback(extent);
     }
+}
+
+void Window::key_action(int key, int scancode, int action, int mods) {
+    // impl
+}
+
+void Window::mouse_action(double xpos, double ypos) {
+    // impl
 }
 
 bool Window::attempt_wayland_init() const {
@@ -88,10 +107,7 @@ bool Window::attempt_wayland_init() const {
 Window::GLFWError Window::get_glfw_result() const {
     const char* result_description[100];
     if (glfwGetError(result_description) != GLFW_NO_ERROR) {
-        return {
-            .failed = true,
-            .reason = std::string(*result_description)
-        };
+        return {.failed = true, .reason = std::string(*result_description)};
     }
 
     return {
