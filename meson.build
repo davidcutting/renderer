@@ -12,6 +12,9 @@ project(
 
 project_description = 'Simple Tiny RenderING engine, my hobby engine.'
 
+build_args = [
+]
+
 compiler = meson.get_compiler('cpp')
 if compiler.get_id() == 'gcc'
     message('Compiler: GCC')
@@ -22,15 +25,13 @@ endif
 if get_option('buildtype') == 'release'
     message('Building in Release mode')
     release = ['-DSTRING_RELEASE']
+    build_args += ['-o3']
 elif get_option('buildtype') == 'debug'
     message('Building in Debug mode')
     release = ['-DSTRING_DEBUG']
 endif
 
 add_project_arguments(release, language : 'cpp')
-
-build_args = [
-]
 
 # --------------------------------------------------
 

@@ -31,6 +31,9 @@
 #ifndef STRING_RELEASE
 #define STRING_STATIC_ASSERT(expression, message) static_assert(expression, message)
 #define STRING_ASSERT(...) assert(__VA_ARGS__)
+#else
+#define STRING_STATIC_ASSERT(expression, message)
+#define STRING_ASSERT(...)
 #endif
 
 namespace String {
@@ -75,6 +78,10 @@ inline const std::shared_ptr<spdlog::logger>& Logger::get_logger() noexcept {
 #define STRING_LOG_TRACE(...) ::String::Logger::get_logger()->trace(__VA_ARGS__)
 #define STRING_LOG_INFO(...) ::String::Logger::get_logger()->info(__VA_ARGS__)
 #define STRING_LOG_WARN(...) ::String::Logger::get_logger()->warn(__VA_ARGS__)
+#else
+#define STRING_LOG_TRACE(...)
+#define STRING_LOG_INFO(...)
+#define STRING_LOG_WARN(...)
 #endif  // STRING_RELEASE
 #define STRING_LOG_ERROR(...) ::String::Logger::get_logger()->error(__VA_ARGS__)
 #define STRING_LOG_CRTICAL(...) ::String::Logger::get_logger()->critical(__VA_ARGS__)
